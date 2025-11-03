@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 zig/
-
+zig_compiler/
 # C extensions
 *.so
 

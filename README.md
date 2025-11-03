@@ -8,17 +8,40 @@ Mis constantes asignadas: **X = 5, Y = 7, Z = 4**
 
 ## Sobre este proyecto
 
-Este repositorio contiene mis respuestas y codigo para el segundo examen de la materia. Organice todo en carpetas por pregunta para que sea mas facil navegar. Para la pregunta 1, se incluye el compilador de Zig en el directorio `zig/`, por lo que no se necesita ninguna instalacion adicional para ejecutar los programas.
+Este repositorio contiene mis respuestas y codigo para el segundo examen de la materia. Organice todo en carpetas por pregunta para que sea mas facil navegar.
 
 ## Navegacion rapida
 
 Puedes saltar directo a cualquier pregunta:
 
-- [Pregunta 1: Análisis de Lenguaje](#pregunta-1-5-puntos-análisis-de-lenguaje-de-programación)
-- [Pregunta 2: Expresiones Aritméticas](#pregunta-2-5-puntos-expresiones-aritméticas)
-- [Pregunta 3: Iteradores](#pregunta-3-5-puntos-iteradores)
-- [Pregunta 4: Funciones Recursivas](#pregunta-4-5-puntos-funciones-recursivas)
-- [Reto Extra: Políglota](#reto-extra-políglota)
+- [Pregunta 1: Analisis de Lenguaje](#pregunta-1-analisis-de-lenguaje-de-programacion)
+- [Pregunta 2: Expresiones Aritmeticas](#pregunta-2-expresiones-aritmeticas)
+- [Pregunta 3: Iteradores](#pregunta-3-iteradores)
+- [Pregunta 4: Funciones Recursivas](#pregunta-4-funciones-recursivas)
+- [Reto Extra: Poliglota](#reto-extra)
+
+---
+
+## Requisitos
+
+### Zig
+
+Para compilar y ejecutar los programas de la pregunta 1 en un entorno Linux, se proporciona un script que descarga y configura el compilador localmente.
+
+**Pasos de Instalacion:**
+
+1.  **Dar permisos de ejecucion al script:**
+
+    ```bash
+    chmod +x ./setup_zig_linux.sh
+    ```
+
+2.  **Ejecutar el script:**
+    ```bash
+    ./setup_zig_linux.sh
+    ```
+
+El script creara una carpeta `zig_compiler` en el directorio actual. Los comandos de ejecucion en la seccion de la Pregunta 1 ya estan configurados para usar este compilador local. **No es necesario anadir nada a tu PATH.**
 
 ---
 
@@ -57,8 +80,7 @@ La implementacion esta en `pregunta1/count.zig`.
 **Como compilar y ejecutar:**
 
 ```bash
-# Estando en la raiz de este repositorio (Examen-2-Lenguajes-de-programacion)
-./zig/zig run ./pregunta1/count.zig
+./zig_compiler/zig run ./pregunta1/count.zig
 
 # Salida esperada
 # count(42) = 8
@@ -79,8 +101,7 @@ El codigo completo esta en `pregunta1/mergesort.zig`.
 **Como compilar y ejecutar:**
 
 ```bash
-# Estando en la raiz de este repositorio (Examen-2-Lenguajes-de-programacion)
-./zig/zig run ./pregunta1/mergesort.zig
+./zig_compiler/zig run ./pregunta1/mergesort.zig
 
 # Salida esperada
 # Original: { 38, 27, 43, 3, 9, 82, 10 }
