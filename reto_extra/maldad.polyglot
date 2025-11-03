@@ -1,0 +1,178 @@
+#!/bin/bash
+"exec" "python3" "-u" "$0" "$@"
+# La linea anterior es un despachador poliglota.
+# En Bash: Ejecuta python3, pasando todos los argumentos y luego sale.
+# En Python: Es una tupla de cadenas, lo cual no tiene efecto; el script continúa.
+
+# ==============================================================================
+#  Polyglot Python / C
+# ==============================================================================
+# Ahora esto es un script de Python que puede iniciar su propio codigo en C.
+
+import sys
+import os
+import subprocess
+import tempfile
+
+# --- Seccion de Codigo C (almacenada en un string) ---
+C_CODE = """
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+typedef unsigned long long ull;
+
+ull trib(int n) {
+    if (n <= 1) return 0;
+    if (n == 2) return 1;
+    ull a = 0, b = 1, c = 1;
+    for (int i = 0; i < n - 3; i++) {
+        ull next = a + b + c;
+        a = b;
+        b = c;
+        c = next;
+    }
+    return c;
+}
+
+ull C(int n, int k) {
+    if (k < 0 || k > n) return 0;
+    if (k == 0 || k == n) return 1;
+    if (k > n / 2) k = n - k;
+    
+    ull res = 1;
+    for (int i = 0; i < k; i++) {
+        res = res * (n - i) / (i + 1);
+    }
+    return res;
+}
+
+double narayana(int n, int k) {
+    if (k < 1 || k > n) return 0;
+    return (1.0 / n) * C(n, k) * C(n, k - 1);
+}
+
+ull maldad(int n) {
+    int k = floor(log2(n));
+    double narayana_val = narayana(n, k);
+    if (narayana_val <= 0) return 0;
+    int log_val = floor(log2(narayana_val));
+    int trib_idx = log_val + 1;
+    return trib(trib_idx);
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        fprintf(stderr, "Uso: %s <n>\\n", argv[0]);
+        return 1;
+    }
+    int n = atoi(argv[1]);
+    if (n < 2) {
+        fprintf(stderr, "Error: n debe ser >= 2.\\n");
+        return 1;
+    }
+    printf("%llu\\n", maldad(n));
+    return 0;
+}
+"""
+
+def run_c_code(n_str):
+    """Compila y ejecuta el codigo C en un proceso separado."""
+    try:
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.c', delete=False) as tmp_c:
+            tmp_c.write(C_CODE)
+            c_file_name = tmp_c.name
+        
+        exe_file_name = tempfile.mktemp()
+        
+        compile_proc = subprocess.run(
+            ['gcc', '-xc', c_file_name, '-o', exe_file_name, '-lm'], 
+            capture_output=True, text=True
+        )
+        if compile_proc.returncode != 0:
+            print("Error al compilar el codigo C:", file=sys.stderr)
+            print(compile_proc.stderr, file=sys.stderr)
+            return
+
+        run_proc = subprocess.run(
+            [exe_file_name, n_str], 
+            capture_output=True, text=True
+        )
+        
+        if run_proc.returncode == 0:
+            print(run_proc.stdout.strip())
+        else:
+            print(f"Error al ejecutar el codigo C:", file=sys.stderr)
+            print(run_proc.stderr, file=sys.stderr)
+
+    finally:
+        if 'c_file_name' in locals() and os.path.exists(c_file_name):
+            os.remove(c_file_name)
+        if 'exe_file_name' in locals() and os.path.exists(exe_file_name):
+            os.remove(exe_file_name)
+
+# --- Seccion de Codigo Python ---
+import math
+
+def trib(n):
+    if n <= 1: return 0
+    if n == 2: return 1
+    a, b, c = 0, 1, 1
+    for _ in range(n - 3):
+        a, b, c = b, c, a + b + c
+    return c
+
+def C(n, k):
+    if k < 0 or k > n: return 0
+    if k == 0 or k == n: return 1
+    if k > n // 2: k = n - k
+    res = 1
+    for i in range(k):
+        res = res * (n - i) // (i + 1)
+    return res
+
+def narayana(n, k):
+    if k < 1 or k > n: return 0
+    # Usamos division flotante para el 1/n
+    return (1.0 / n) * C(n, k) * C(n, k - 1)
+
+def maldad(n):
+    if n < 2: raise ValueError("n debe ser >= 2.")
+    k = math.floor(math.log2(n))
+    narayana_val = narayana(n, k)
+    if narayana_val <= 0: return 0
+    log_val = math.floor(math.log2(narayana_val))
+    trib_idx = log_val + 1
+    return trib(trib_idx)
+
+# --- Despachador Principal (en Python) ---
+def main():
+    if len(sys.argv) < 2:
+        print(f"Uso: {sys.argv[0]} <n> [python|c]", file=sys.stderr)
+        return
+
+    n_str = sys.argv[1]
+    lang = sys.argv[2] if len(sys.argv) > 2 else None
+
+    # Decidir que lenguaje usar
+    use_c = False
+    if lang == 'c':
+        use_c = True
+    elif lang != 'python':
+        # Default: intentar C si gcc esta disponible, si no, usar Python
+        res = subprocess.run(['which', 'gcc'], capture_output=True)
+        if res.returncode == 0:
+            use_c = True
+
+    try:
+        n_val = int(n_str)
+        if use_c:
+            run_c_code(n_str)
+        else:
+            print(maldad(n_val))
+            
+    except (ValueError, TypeError) as e:
+        print(f"Error: {e}", file=sys.stderr)
+
+if __name__ == "__main__":
+    main()

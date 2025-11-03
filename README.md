@@ -297,3 +297,50 @@ El script genera el siguiente grafico, que muestra claramente la diferencia de r
 - **Conclusion Final:** Para problemas de PD (pragramcion dinamica) como este, un enfoque iterativo o de recursion de cola es casi siempre mejor a una recursion directa, tanto en uso de memoria como en velocidad.
 
 ---
+
+## Reto Extra:
+
+El reto consiste en crear un unico archivo de codigo fuente que calcule la funcion `maldad(n)` y que sea ejecutable por multiples lenguajes de programacion.
+
+### Solucion y Diseno
+
+La solucion implementada es un archivo polyglota que es, a la vez, un script de **Bash**, un programa en **C** y un script de **Python 3**.
+
+La tecnica utilizada es la de crear una especie de **(dispatcher)**:
+
+1.  El archivo es fundamentalmente un script de Python. La primera linea (`#!/bin/bash \n "exec" ...`) es un truco que funciona como un despachador de Bash (que re-ejecuta el archivo con Python) y es ignorada por el interprete de Python.
+2.  El codigo de C se almacena de forma segura dentro de una cadena de texto multi-linea en Python.
+3.  El script de Python actua como el despachador principal. Al ejecutarse, decide si debe:
+    - Ejecutar la logica de Python directamente.
+    - O tomar la cadena de texto con el codigo C, escribirla en un archivo temporal, compilarla con `gcc` y ejecutar el programa resultante.
+
+### Archivo
+
+- `reto_extra/maldad.polyglot`
+
+### Como ejecutar el Polyglot
+
+**1. Ejecucion Automatica (Default: C si `gcc` esta disponible, si no Python)**
+Este comando intentara usar C. Si `gcc` no esta instalado, automaticamente usara Python.
+
+```bash
+./reto_extra/maldad.polyglot 50
+```
+
+**2. Ejecucion Explicita con Python**
+
+```bash
+./reto_extra/maldad.polyglot 50 python
+```
+
+**3. Ejecucion Explicita con C**
+
+```bash
+./reto_extra/maldad.polyglot 50 c
+```
+
+**Salida esperada (para n=50, identica en todos los lenguajes):**
+
+```
+13836773228483
+```
